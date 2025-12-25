@@ -1,12 +1,12 @@
-# Http Proxy 主流程
+# Http Proxy Main Flow
 
-本质上说， Agentgateway 是一个 HTTP Proxy ，只是在 HTTP 之上增加了对 AI(LLM/MCP/A2A) 状态化协议的支持。所以分析 HTTP Proxy 层的主流程，就是分析 Agentgateway 的主流程。
+Essentially, Agentgateway is an HTTP Proxy, but it adds support for AI (LLM/MCP/A2A) stateful protocols on top of HTTP. Therefore, analyzing the main flow of the HTTP Proxy layer is analyzing the main flow of Agentgateway.
 
-## Http Proxy 分析示例
+## Http Proxy Analysis Example
 
-### Agentgateway 配置文件
+### Agentgateway Configuration File
 
-本节分析的 Http Proxy 主流程，基于以下 Agentgateway 配置文件
+The Http Proxy main flow analyzed in this section is based on the following Agentgateway configuration file
 
 https://github.com/labilezhu/pub-diy/blob/main/ai/agentgateway/ag-dev/devcontainer-config.yaml
 ```yaml
@@ -104,7 +104,8 @@ binds:
 ```
 
 
-### 触发 LLM 请求
+### Triggering an LLM Request
+
 ```bash
 curl -v http://localhost:3100/compatible-mode/v1/chat/completions \
   -H "Content-Type: application/json" \
@@ -116,7 +117,8 @@ curl -v http://localhost:3100/compatible-mode/v1/chat/completions \
   }'  
 ```
 
-返回：
+Response:
+
 ```
 * Host localhost:3100 was resolved.
 * IPv6: ::1
@@ -149,43 +151,43 @@ curl -v http://localhost:3100/compatible-mode/v1/chat/completions \
 {"model":"qwen-plus","usage":{"prompt_tokens":10,"completion_tokens":20,"total_tokens":30,"prompt_tokens_details":{"cached_tokens":0}},"choices":[{"message":{"content":"Hello! ٩(◕‿◕｡)۶ How can I assist you today?","role":"assistant"},"finish_reason":"stop","index":0,"logprobs":null}],"object":"chat.completion","created":1766635351,"system_fingerprint":null,"id":"chatcmpl-120e5847-3394-923c-a494-8eb9f81cb36e"}
 ```
 
-### Http Proxy 主流程图
+### HTTP Proxy Main Flow Diagram
 
 
-#### 1. L4 连接 accept 流程图
+#### 1. L4 Connection Accept Flow
 
-通过 vscode Debug ，可以看到 Http Proxy 主流程如下图所示：
+By debugging in VS Code, you can observe the main HTTP Proxy flow as shown below:
 
 :::{figure-md}
 :class: full-width
 
 <img src="agentgateway-httpproxy.drawio.svg" alt="图：Http Proxy 主流程">
 
-*图：Http Proxy 主流程*  
+*Figure: HTTP Proxy Main Flow*
 :::
-*[用 Draw.io 打开](https://app.diagrams.net/?ui=sketch#Uhttps%3A%2F%2Fagentgateway-insider.mygraphql.com%2Fzh_CN%2Flatest%2F_images%2Fagentgateway-httpproxy.drawio.svg)*
+*[Open with Draw.io](https://app.diagrams.net/?ui=sketch#Uhttps%3A%2F%2Fagentgateway-insider.mygraphql.com%2Fzh_CN%2Flatest%2F_images%2Fagentgateway-httpproxy.drawio.svg)*
 
-> *图中带 ⚓ 图标，双击链接到本地 vscode 的源码。见 {ref}`diagram-vscode-code-link-setup` 一节*
-
-
+> *Nodes marked with the ⚓ icon can be double-clicked to jump to the local VS Code source code. See the {ref}`diagram-vscode-code-link-setup` section.*
 
 
-可见，主要的 http proxy 逻辑放在 `Gateway` 结构体中。其中有两个关键 spawn 点：
+
+
+As shown, the main HTTP proxy logic resides in the `Gateway` struct. There are two key spawn points:
 1. `Gateway::run()` 中，为每个监听端口 spawn 一个 `Gateway::run_bind()` async future。这个任务负责监听端口，`accept` 新连接。
 2. `Gateway::run_bind()` 在 `accept` 新连接后，每个连接 spawn 一个 `Gateway::handle_tunnel()` async future。 这个任务负责处理每个连接的所有事件。
   - 如果连接的 tunnel 协议是 `Direct`(即直接连接) ，就调用  `Gateway::proxy_bind()` 交由 HTTPProxy 模块处理 。
 
 
-#### 2. L7 HTTP 层流程
+#### 2. L7 HTTP Layer Flow
 
 1. `Gateway::proxy()` 调用  `hyper-util` 的 HTTP Server 模块，读取和解释 HTTP 请求头。解释完成后回调 到 `HTTPProxy::proxy()`
 
 
-#### 3. L8 AI Proxy Route 层
+#### 3. L8 AI Proxy Route Layer
 
 1. `HTTPProxy::proxy_internal()` 执行各种 Policy 和 Route 。直到 `HTTPProxy::attempt_upstream()` 向 upstream(在当前配置下是 LLM AI Provider backend) 发起调用。
 
 
-#### 4. Upstream(backend) call
+#### 4. Upstream (Backend) Call
 
 1. `HTTPProxy::make_backend_call()` 调用  `hyper-util` 的 HTTP Client 模块，构建并发送 HTTP 请求到 upstream。其中有连接池的管理逻辑。
