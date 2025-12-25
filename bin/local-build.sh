@@ -2,13 +2,13 @@
 
 # see `install.sh` first
 
-cd /home/labile/agentgateway-insider
+cd /home/labile/agentgateway-insider-en
 
 source .venv/bin/activate
 
 export http_proxy=http://192.168.16.58:8118 && export https_proxy=http://192.168.16.58:8118
 
-cd /home/labile/agentgateway-insider
+cd /home/labile/agentgateway-insider-en
 pushd ./docs
 make clean
 make html

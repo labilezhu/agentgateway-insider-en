@@ -173,21 +173,18 @@ By debugging in VS Code, you can observe the main HTTP Proxy flow as shown below
 
 
 As shown, the main HTTP proxy logic resides in the `Gateway` struct. There are two key spawn points:
-1. `Gateway::run()` 中，为每个监听端口 spawn 一个 `Gateway::run_bind()` async future。这个任务负责监听端口，`accept` 新连接。
-2. `Gateway::run_bind()` 在 `accept` 新连接后，每个连接 spawn 一个 `Gateway::handle_tunnel()` async future。 这个任务负责处理每个连接的所有事件。
-  - 如果连接的 tunnel 协议是 `Direct`(即直接连接) ，就调用  `Gateway::proxy_bind()` 交由 HTTPProxy 模块处理 。
-
+1. In `Gateway::run()`, a `Gateway::run_bind()` async future is spawned for each listening port. This task is responsible for listening on the port and `accept`ing new connections.
+2. After `Gateway::run_bind()` accepts a new connection, it spawns a `Gateway::handle_tunnel()` async future for each connection. This task is responsible for handling all events for that connection.
+  - If the tunnel protocol of the connection is `Direct` (i.e., a direct connection), it calls `Gateway::proxy_bind()` and hands it over to the HTTPProxy module for processing.
 
 #### 2. L7 HTTP Layer Flow
 
-1. `Gateway::proxy()` 调用  `hyper-util` 的 HTTP Server 模块，读取和解释 HTTP 请求头。解释完成后回调 到 `HTTPProxy::proxy()`
-
+1. `Gateway::proxy()` invokes the HTTP Server module from `hyper-util` to read and parse HTTP request headers. After parsing is complete, it calls back into `HTTPProxy::proxy()`.
 
 #### 3. L8 AI Proxy Route Layer
 
-1. `HTTPProxy::proxy_internal()` 执行各种 Policy 和 Route 。直到 `HTTPProxy::attempt_upstream()` 向 upstream(在当前配置下是 LLM AI Provider backend) 发起调用。
-
+1. `HTTPProxy::proxy_internal()` executes various policies and routing logic, eventually invoking `HTTPProxy::attempt_upstream()` to make a call to the upstream (which, under the current configuration, is the LLM AI Provider backend).
 
 #### 4. Upstream (Backend) Call
 
-1. `HTTPProxy::make_backend_call()` 调用  `hyper-util` 的 HTTP Client 模块，构建并发送 HTTP 请求到 upstream。其中有连接池的管理逻辑。
+1. `HTTPProxy::make_backend_call()` uses the HTTP Client module from `hyper-util` to construct and send an HTTP request to the upstream. This includes connection pool management logic.
