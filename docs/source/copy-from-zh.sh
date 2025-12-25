@@ -1,0 +1,1 @@
+find /home/labile/agentgateway-insider/docs/source/ -name "*.drawio.svg" > copy-drawio-from-zh.sh
