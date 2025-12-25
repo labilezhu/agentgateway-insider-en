@@ -5,6 +5,7 @@ to-be-english: true
 
 # Interactive Reading Book
 
+(interactive-book)=
 ## Interactive Book
 
 At this point in human development, I think the definition of a "book" should be expanded. As technical knowledge becomes more complex, interactive and electronic presentation methods may be better suited for deep learning of complex technical topics. Put another way: when you're getting started you want abstraction and simplification; when you go deeper you want to clarify internal relationships.

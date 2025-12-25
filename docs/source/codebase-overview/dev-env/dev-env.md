@@ -4,7 +4,7 @@ This guide recommends Visual Studio Code as the primary tool for reading and deb
 
 (diagram-vscode-code-link-setup)=
 ## Source diagrams linking to VS Code source
-As mentioned in {ref}`/ch0/index.md:interactive-book`, the diagrams in this book include an anchor icon (⚓) that you can double-click to jump to the corresponding source location in your local VS Code workspace. This provides a seamless navigation experience between diagrams and code.
+As mentioned in {ref}`interactive-book`, the diagrams in this book include an anchor icon (⚓) that you can double-click to jump to the corresponding source location in your local VS Code workspace. This provides a seamless navigation experience between diagrams and code.
 
 Due to a limitation of the Draw.io VS Code extension, Draw.io files must be placed at a path in the workspace that matches the paths expected by the diagrams. I keep the diagrams and resource files used in this book in the `pub-diy` repository.
 
