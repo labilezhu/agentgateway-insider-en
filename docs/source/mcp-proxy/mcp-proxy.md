@@ -1,4 +1,4 @@
-# 代理 MCP
+# Proxying MCP
 
 As a key protocol in the AI Agent ecosystem, MCP support is one of Agentgateway’s core capabilities. This article documents my experience and observations while proxying MCP traffic with Agentgateway. It is also a summary of lessons learned after spending several days debugging why my browser could not connect to the Agentgateway MCP endpoint.
 
