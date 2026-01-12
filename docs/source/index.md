@@ -98,4 +98,5 @@ ch0/index
 codebase-overview/codebase-overview.md
 app-life/app-life.md
 http-proxy/http-proxy.md
+mcp-proxy/mcp-proxy.md
 ```
